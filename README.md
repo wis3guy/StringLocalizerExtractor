@@ -1,8 +1,7 @@
 # LocalizerStringExtractor
 Extract all the localizable strings from an AspNetCore project.
 
-This tool uses the [Roslyn compiler](https://github.com/dotnet/roslyn) to retrieve possible localizable strings that are using
-the ``IStringLocalizer`` (from the AspNetCode Localization project). To run the tool from command line, you can use ``StringLocalizerExtractor.exe [source (defaults to ./)] --output [the output path with filename]``.
+This tool uses the [Roslyn compiler](https://github.com/dotnet/roslyn) to retrieve possible localizable strings that are using the ``IStringLocalizer`` (from the AspNetCode Localization project) as well as the Display and DisplayName attributes (as long as the class that defined the properties ends with the suffix "Model" or "ViewModel"). To run the tool from command line, you can use ``StringLocalizerExtractor.exe [source (defaults to ./)] --output [the output path with filename]``.
 
 The tool navigates the source directory recursively. Only the files that end with ``.cs`` or ``.cshtml`` (case insensitive) will be analyzed by the tool. At the same time, the tool omits the following directories:
 * bin
@@ -18,6 +17,15 @@ var helloWorld = localizer["Hello world"];
 var helloUser = localizer.GetString("Hello {0}!", "user");
 ```
 In the above example, the tool will extract both keys (``Hello world`` and ``Hello {0}!``)
+
+Using attributes
+```c#
+[Display(Name = "User name")]
+public string UserName{get;set;}
+
+[DisplayName("Electronic mail")]
+public string Email{get;set;}
+```
 
 # Output
 Right now, the tool only generates POT files, but I'm going to provide more formats.

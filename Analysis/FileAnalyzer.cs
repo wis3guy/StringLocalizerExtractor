@@ -178,14 +178,12 @@ namespace StringLocalizerExtractor.Analysis
                 return null; // Nothing to do with an empty expression, is there?
 
             // Retrieve alias name
-            var aliasName = syntax as AliasQualifiedNameSyntax;
-            if (aliasName != null)
-                return GetNameFromExpression(aliasName.Name);
+            while (syntax.Kind() == SyntaxKind.AliasQualifiedName)
+                syntax = ((AliasQualifiedNameSyntax)syntax).Name;
 
             // Retrieve qualified name
-            var qualifiedName = syntax as QualifiedNameSyntax;
-            if (qualifiedName != null)
-                return GetNameFromExpression(qualifiedName.Right);
+            while (syntax.Kind() == SyntaxKind.QualifiedName)
+                syntax = ((QualifiedNameSyntax)syntax).Right;
 
             // Retrieve simple name
             var simpleName = syntax as SimpleNameSyntax;
@@ -195,20 +193,19 @@ namespace StringLocalizerExtractor.Analysis
         #region GetExpressionValue
 
         [SuppressMessage("ReSharper", "InvertIf")]
+        [SuppressMessage("ReSharper", "TailRecursiveCall")]
         private static string GetExpressionValue(ExpressionSyntax syntax)
         {
             if (syntax == null)
                 return null; // Nothing to do with a null expression, is there?
 
-            // Retrieve the value of a parenthesized expression
-            var parenthesized = syntax as ParenthesizedExpressionSyntax;
-            if (parenthesized != null)
-                return GetExpressionValue(parenthesized.Expression);
+            // Remove the parenthesis expression
+            while (syntax.Kind() == SyntaxKind.ParenthesizedExpression)
+                syntax = ((ParenthesizedExpressionSyntax)syntax).Expression;
 
-            // Retrieve the value of a cast expression
-            var cast = syntax as CastExpressionSyntax;
-            if (cast != null)
-                return GetExpressionValue(cast.Expression);
+            // Remove the cast expression
+            while (syntax.Kind() == SyntaxKind.CastExpression)
+                syntax = ((CastExpressionSyntax)syntax).Expression;
 
             // Retrieve the value of a literal expression
             var literal = syntax as LiteralExpressionSyntax;
