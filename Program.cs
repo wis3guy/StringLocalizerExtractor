@@ -17,17 +17,6 @@ namespace StringLocalizerExtractor
 
         public static int Main(string[] args)
         {
-            var Localizer = new TestLocalizer();
-            var r = Localizer[402f];
-            var r2 = Localizer[401L];
-            int n = 33;
-            var r3 = Localizer[n];
-            var r4 = Localizer[(object)"Localizer"];
-            var r5 = Localizer[((object)"Localizer") as string];
-            var r6 = Localizer["Localizer" as string];
-            var r7 = Localizer[(object)"Localizer" as string];
-
-
             var options = Parser.Default.ParseArguments<Options>(args);
             var resultCode = options.MapResult(
                 opt =>
@@ -44,13 +33,6 @@ namespace StringLocalizerExtractor
                 error => 1);
             
             return resultCode;
-        }
-
-        private class TestLocalizer
-        {
-
-            public object this[object name] => name;
-
         }
     }
 }
