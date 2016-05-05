@@ -78,18 +78,21 @@
     <Compile Include="Message.cs" />
     <Compile Include="MessageSource.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="PotFileWriter.cs" />
+    <Compile Include="Writer\BaseFileWriter.cs" />
+    <Compile Include="Writer\PotFileWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ReadOnlyCollection{T}.cs" />
     <Compile Include="Source\BaseSource.cs" />
     <Compile Include="Source\SourceDirectory.cs" />
     <Compile Include="Source\SourceFile.cs" />
-    <Compile Include="IWriter.cs" />
+    <Compile Include="Writer\IWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="LICENSE" />
     <None Include="packages.config" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\packages\Microsoft.CodeAnalysis.Analyzers.1.2.0-beta1\analyzers\dotnet\cs\Analyzer.Utilities.dll" />

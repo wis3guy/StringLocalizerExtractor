@@ -1,4 +1,4 @@
-﻿namespace StringLocalizerExtractor
+﻿namespace StringLocalizerExtractor.Writer
 {
 
     /// <summary>

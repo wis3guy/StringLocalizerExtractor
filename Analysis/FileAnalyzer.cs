@@ -379,13 +379,11 @@ namespace StringLocalizerExtractor.Analysis
             // Append all properties display/display name attributes
             foreach (var prop in properties)
             {
-                var attrs = prop.AttributeLists.SelectMany(p => p.Attributes);
-                var displays = (from a in attrs
-                                where
-                                    IsDisplayAttribute(a) ||
-                                    IsDisplayNameAttribute(a)
-                                select AnalyzeAttribute(a)).Where(r => r != null)
-                                                           .ToArray();
+                var displays =
+                    prop.AttributeLists.SelectMany(p => p.Attributes)
+                        .Select(AnalyzeAttribute)
+                        .Where(r => r != null)
+                        .ToArray();
 
                 if (displays.Length > 0)
                 {
@@ -409,7 +407,11 @@ namespace StringLocalizerExtractor.Analysis
 
         private AnalysisResult AnalyzeAttribute(AttributeSyntax attribute)
         {
-            var args = attribute.ArgumentList.Arguments.AsEnumerable();
+            if (attribute?.ArgumentList == null ||
+                !attribute.ArgumentList.Arguments.Any())
+                return null;
+
+            var args = attribute.ArgumentList.Arguments;
             if (IsDisplayNameAttribute(attribute))
             {
                 // Retrieve the DisplayName value
@@ -418,24 +420,37 @@ namespace StringLocalizerExtractor.Analysis
                     ? null
                     : new AnalysisResult(value, CreateSource(attribute));
             }
+            if (IsDisplayAttribute(attribute))
+            {
+                // Retrieve the name argument
+                var nameArg = (from a in args
+                               let name = GetNameFromExpression(a.NameEquals?.Name)
+                               where
+                                   !string.IsNullOrWhiteSpace(name) &&
+                                   name.Equals("name",
+                                       StringComparison.OrdinalIgnoreCase)
+                               select a).FirstOrDefault();
 
-            // Determine if the attribute is a Display attribute
-            if (!IsDisplayAttribute(attribute))
-                return null;
+                if (nameArg == null)
+                    return null;
 
-            // Retrieve the name argument
-            var nameArg = (from a in args
-                           let name = GetNameFromExpression(a.NameEquals?.Name)
-                           where
-                               !string.IsNullOrWhiteSpace(name) &&
-                               name.Equals("name", StringComparison.OrdinalIgnoreCase)
-                           select a).FirstOrDefault();
+                return new AnalysisResult(GetExpressionValue(nameArg.Expression),
+                    CreateSource(nameArg));
+            }
 
-            if (nameArg == null)
-                return null;
+            // Retrieve error message
+            var errMsgArg = (from a in args
+                             let name = GetNameFromExpression(a.NameEquals?.Name)
+                             where
+                                 !string.IsNullOrWhiteSpace(name) &&
+                                 name.Equals("errormessage",
+                                     StringComparison.OrdinalIgnoreCase)
+                             select a).FirstOrDefault();
 
-            return new AnalysisResult(GetExpressionValue(nameArg.Expression),
-                CreateSource(nameArg));
+            return errMsgArg == null
+                ? null
+                : new AnalysisResult(GetExpressionValue(errMsgArg.Expression),
+                    CreateSource(errMsgArg));
         }
 
         #endregion
@@ -450,7 +465,7 @@ namespace StringLocalizerExtractor.Analysis
             Invalid,
             CSharp,
             Razor
-
+            
         }
 
     }

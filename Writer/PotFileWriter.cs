@@ -1,18 +1,17 @@
 ﻿#region # using statements #
 
-using System;
 using System.IO;
 using System.Text;
 
 #endregion
 
-namespace StringLocalizerExtractor
+namespace StringLocalizerExtractor.Writer
 {
 
     /// <summary>
     /// Represents a <see cref="IWriter"/> that generates a POT file.
     /// </summary>
-    public sealed class PotFileWriter : IWriter
+    public sealed class PotFileWriter : BaseFileWriter
     {
 
         /// <summary>
@@ -21,33 +20,19 @@ namespace StringLocalizerExtractor
         /// </summary>
         /// <param name="path"></param>
         public PotFileWriter(string path)
+            : base(path)
         {
-            if (path == null)
-                throw new ArgumentNullException(nameof(path));
-
-            Path = System.IO.Path.GetFullPath(path);
         }
 
-        #region # Properties #
+        #region # Methods #
 
-        #region == Public ==
-
-        /// <summary>
-        /// Gets the absolute path to the file that will be generated.
-        /// </summary>
-        public string Path { get; }
-
-        #endregion
-
-        #endregion
-
-        #region # IWriter #
+        #region == Overrides ==
 
         /// <summary>
         /// Writes all the translation messages.
         /// </summary>
         /// <param name="messages">The messages to be written.</param>
-        public void Write(ReadOnlyCollection<Message> messages)
+        public override void Write(ReadOnlyCollection<Message> messages)
         {
             var builder = new StringBuilder();
 
@@ -71,6 +56,12 @@ namespace StringLocalizerExtractor
             foreach (var message in messages)
             {
                 builder.AppendLine();
+
+                // Append comment
+                if (!string.IsNullOrWhiteSpace(message.Comment))
+                    builder.AppendLine("#  " + message.Comment);
+
+                // Append references
                 foreach (var source in message.Sources)
                     builder.AppendLine("#: " + source.File + ":" + source.LineNumber);
 
@@ -82,6 +73,8 @@ namespace StringLocalizerExtractor
             // Done
             File.WriteAllText(Path, builder.ToString());
         }
+
+        #endregion
 
         #endregion
     }

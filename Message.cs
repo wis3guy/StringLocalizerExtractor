@@ -37,6 +37,11 @@ namespace StringLocalizerExtractor
         public string Text { get; }
 
         /// <summary>
+        /// Gets or sets the commant for this message.
+        /// </summary>
+        public string Comment { get; set; }
+
+        /// <summary>
         /// Gets a collection containing all the sources where this message has
         /// been found.
         /// </summary>
